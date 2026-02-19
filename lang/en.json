@@ -1,0 +1,16 @@
+{
+    "ReportSorter": {
+        "SortReports": "Sort reports",
+        "SortReportsTitle": "Drag to reorder reports on this page",
+        "SortReportsHint": "Drag reports to reorder them. Your order is saved per user.",
+        "SaveOrder": "Save order",
+        "ResetToDefault": "Reset to default",
+        "ResetConfirm": "Reset to default report order for this page?",
+        "Saving": "Saving\u2026",
+        "Resetting": "Resetting\u2026",
+        "ErrorLoadingMetadata": "Could not load page metadata. Please try again.",
+        "ErrorSaving": "Could not save order. Please try again.",
+        "ErrorResetting": "Could not reset order. Please try again.",
+        "NotEnoughReports": "This page has fewer than 2 sortable reports — nothing to reorder."
+    }
+}

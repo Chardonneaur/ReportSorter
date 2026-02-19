@@ -1,0 +1,223 @@
+/* ReportSorter — floating button + sort modal */
+
+/* ── Floating sort button ─────────────────────────────────────────────────── */
+
+#reportSorterToggle {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 900;
+    background: #1a7a8a;
+    color: #fff;
+    border: none;
+    border-radius: 24px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+    letter-spacing: 0.02em;
+}
+
+#reportSorterToggle:hover {
+    background: #156070;
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.32);
+    transform: translateY(-1px);
+}
+
+#reportSorterToggle:active {
+    transform: translateY(0);
+}
+
+/* ── Overlay ──────────────────────────────────────────────────────────────── */
+
+#reportSorterOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.48);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── Modal box ────────────────────────────────────────────────────────────── */
+
+#reportSorterModal {
+    background: #fff;
+    border-radius: 8px;
+    width: 460px;
+    max-width: 92vw;
+    max-height: 82vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+    animation: rsModalIn 0.15s ease-out;
+}
+
+@keyframes rsModalIn {
+    from { opacity: 0; transform: scale(0.96) translateY(-8px); }
+    to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+
+#rsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: #1a7a8a;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+#rsHeader h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+#rsClose {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    opacity: 0.75;
+    transition: opacity 0.1s, background 0.1s;
+    line-height: 1;
+}
+
+#rsClose:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Hint ─────────────────────────────────────────────────────────────────── */
+
+#rsHint {
+    margin: 0;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #666;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+/* ── Sortable list ────────────────────────────────────────────────────────── */
+
+#rsList {
+    list-style: none;
+    margin: 0;
+    padding: 6px 0;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.rsItem {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid #f3f3f3;
+    background: #fff;
+    user-select: none;
+    transition: background 0.1s;
+    cursor: default;
+}
+
+.rsItem:last-child {
+    border-bottom: none;
+}
+
+.rsItem:hover {
+    background: #f0f8fa;
+}
+
+.rsItem.rsDragging {
+    opacity: 0.35;
+    background: #dff0f5;
+}
+
+/* Drag handle (braille dots icon) */
+.rsHandle {
+    font-size: 20px;
+    color: #bbb;
+    margin-right: 14px;
+    cursor: grab;
+    flex-shrink: 0;
+    line-height: 1;
+    transition: color 0.1s;
+}
+
+.rsItem:hover .rsHandle {
+    color: #1a7a8a;
+}
+
+.rsHandle:active {
+    cursor: grabbing;
+}
+
+.rsName {
+    font-size: 14px;
+    color: #333;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+
+#rsFooter {
+    padding: 12px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+#rsSave {
+    background: #1a7a8a;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 22px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+#rsSave:hover:not(:disabled) {
+    background: #156070;
+}
+
+#rsSave:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+#rsReset {
+    background: none;
+    color: #666;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.1s, border-color 0.1s;
+}
+
+#rsReset:hover:not(:disabled) {
+    background: #f5f5f5;
+    border-color: #999;
+    color: #444;
+}
+
+#rsReset:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}

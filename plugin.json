@@ -1,0 +1,29 @@
+{
+    "name": "ReportSorter",
+    "description": "Allows users to drag and reorder reports within any standard Matomo report page. Order is saved per user.",
+    "version": "1.0.0",
+    "theme": false,
+    "require": {
+        "matomo": ">=5.0.0,<6.0.0-b1"
+    },
+    "authors": [
+        {
+            "name": "Openmost",
+            "email": "ronan@openmost.io",
+            "homepage": "https://openmost.io"
+        }
+    ],
+    "support": {
+        "email": "ronan@openmost.io"
+    },
+    "homepage": "https://openmost.io",
+    "license": "GPL v3+",
+    "keywords": [
+        "reports",
+        "sort",
+        "reorder",
+        "dashboard",
+        "ui"
+    ],
+    "category": "others"
+}
