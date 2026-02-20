@@ -14,6 +14,8 @@ use Piwik\Piwik;
 
 class Controller extends \Piwik\Plugin\Controller
 {
+    private const MAX_PAYLOAD_BYTES = 102400; // 100 KB
+
     /**
      * Save a custom report order for the current user on a given subcategory page.
      * POST: categoryId, subcategoryId, reportIds (JSON-encoded array of widget uniqueIds),
@@ -27,13 +29,25 @@ class Controller extends \Piwik\Plugin\Controller
         $categoryId    = Common::getRequestVar('categoryId', '', 'string');
         $subcategoryId = Common::getRequestVar('subcategoryId', '', 'string');
 
-        // Read reportIds from raw POST — Common::getRequestVar sanitizes quotes,
-        // which corrupts the JSON string.
-        $reportIdsRaw = isset($_POST['reportIds']) ? $_POST['reportIds'] : '[]';
-
         if (empty($categoryId) || empty($subcategoryId)) {
             Json::sendHeaderJSON();
             return json_encode(['result' => 'error', 'message' => 'Category and subcategory are required.']);
+        }
+
+        if (!Model::isValidCategoryId($categoryId) || !Model::isValidCategoryId($subcategoryId)) {
+            Json::sendHeaderJSON();
+            return json_encode(['result' => 'error', 'message' => 'Invalid category or subcategory format.']);
+        }
+
+        // Read reportIds from raw POST — Common::getRequestVar sanitizes quotes,
+        // which corrupts the JSON string.
+        $reportIdsRaw = isset($_POST['reportIds']) && is_string($_POST['reportIds'])
+            ? $_POST['reportIds']
+            : '[]';
+
+        if (strlen($reportIdsRaw) > self::MAX_PAYLOAD_BYTES) {
+            Json::sendHeaderJSON();
+            return json_encode(['result' => 'error', 'message' => 'reportIds payload too large.']);
         }
 
         $decoded = json_decode($reportIdsRaw, true);
@@ -47,13 +61,21 @@ class Controller extends \Piwik\Plugin\Controller
         $sanitized = [];
         foreach (array_slice($decoded, 0, 200) as $id) {
             $id = (string) $id;
-            if (preg_match('/^widget[A-Za-z0-9%._+\-]{1,400}$/', $id)) {
+            if (preg_match('/^widget[A-Za-z0-9._+\-]{1,400}$/', $id)) {
                 $sanitized[] = $id;
             }
         }
 
         $login = Piwik::getCurrentUserLogin();
         $model = new Model();
+
+        if (!$model->hasOrder($login, $categoryId, $subcategoryId)
+            && $model->countRowsForUser($login) >= Model::MAX_ROWS_PER_USER
+        ) {
+            Json::sendHeaderJSON();
+            return json_encode(['result' => 'error', 'message' => 'Too many saved orders. Please reset some pages first.']);
+        }
+
         $model->saveOrder($login, $categoryId, $subcategoryId, $sanitized);
 
         Json::sendHeaderJSON();
@@ -77,9 +99,14 @@ class Controller extends \Piwik\Plugin\Controller
             return json_encode(['result' => 'error', 'message' => 'Category and subcategory are required.']);
         }
 
+        if (!Model::isValidCategoryId($categoryId) || !Model::isValidCategoryId($subcategoryId)) {
+            Json::sendHeaderJSON();
+            return json_encode(['result' => 'error', 'message' => 'Invalid category or subcategory format.']);
+        }
+
         $login = Piwik::getCurrentUserLogin();
         $model = new Model();
-        $model->saveOrder($login, $categoryId, $subcategoryId, []);
+        $model->deleteOrder($login, $categoryId, $subcategoryId);
 
         Json::sendHeaderJSON();
         return json_encode(['result' => 'success']);

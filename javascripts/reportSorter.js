@@ -69,9 +69,9 @@
             var $page = $('.reporting-page');
 
             if (!$page.length) {
-                // Not a report page — remove button if it exists
+                // Not a report page — remove button bar if it exists
                 if ($('#reportSorterToggle').length) {
-                    $('#reportSorterToggle').remove();
+                    $('#reportSorterBar').remove();
                     state.pageKey = null;
                 }
                 return;
@@ -95,7 +95,7 @@
             }
 
             state.pageKey = pageKey;
-            $('#reportSorterToggle').remove();
+            $('#reportSorterBar').remove();
             addButton();
 
         }, 500);
@@ -103,13 +103,17 @@
         // ── Sort button ───────────────────────────────────────────────────────
 
         function addButton() {
-            $('<button>', {
+            var $btn = $('<button>', {
                 id:    'reportSorterToggle',
+                'class': 'btn',
                 title: 'Sort reports on this page'
             })
             .html('&#8597;&nbsp;Sort reports')
-            .on('click', openModal)
-            .appendTo('body');
+            .on('click', openModal);
+
+            $('<div>', { id: 'reportSorterBar' })
+                .append($btn)
+                .prependTo('.reporting-page');
         }
 
         // ── Modal ─────────────────────────────────────────────────────────────
@@ -173,8 +177,8 @@
                 '<p id="rsHint">Drag reports to reorder them. Your order is saved per user.</p>' +
                 '<ul id="rsList">' + listHtml + '</ul>' +
                 '<div id="rsFooter">' +
-                    '<button id="rsReset">Reset to default</button>' +
-                    '<button id="rsSave">Save order</button>' +
+                    '<button id="rsReset" class="btn btn-outline">Reset to default</button>' +
+                    '<button id="rsSave" class="btn">Save order</button>' +
                 '</div>'
             );
 

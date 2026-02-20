@@ -24,7 +24,7 @@ class API extends \Piwik\Plugin\API
      *
      * @param string $categoryId    e.g. "General_Visitors"
      * @param string $subcategoryId e.g. "DevicesDetection_Software"
-     * @param string $reportIds     JSON-encoded array of "Module.action" strings in desired order
+     * @param string $reportIds     JSON-encoded array of widget uniqueIds in desired order
      */
     public function saveReportOrder(string $categoryId, string $subcategoryId, string $reportIds = '[]'): void
     {
@@ -37,23 +37,31 @@ class API extends \Piwik\Plugin\API
             throw new \InvalidArgumentException('Category and subcategory are required.');
         }
 
+        if (!Model::isValidCategoryId($categoryId) || !Model::isValidCategoryId($subcategoryId)) {
+            throw new \InvalidArgumentException('Invalid category or subcategory format.');
+        }
+
         $decoded = json_decode($reportIds, true);
         if (!is_array($decoded)) {
             throw new \InvalidArgumentException('reportIds must be a valid JSON array.');
         }
 
-        // Sanitize: only allow Matomo widget uniqueId format —
-        // starts with 'widget', followed by alphanumeric chars and URL-encoded param separators.
-        // Cap at 200 entries — far more than any real subcategory page has.
         $sanitized = [];
         foreach (array_slice($decoded, 0, 200) as $id) {
             $id = (string) $id;
-            if (preg_match('/^widget[A-Za-z0-9%._+\-]{1,400}$/', $id)) {
+            if (preg_match('/^widget[A-Za-z0-9._+\-]{1,400}$/', $id)) {
                 $sanitized[] = $id;
             }
         }
 
         $login = Piwik::getCurrentUserLogin();
+
+        if (!$this->model->hasOrder($login, $categoryId, $subcategoryId)
+            && $this->model->countRowsForUser($login) >= Model::MAX_ROWS_PER_USER
+        ) {
+            throw new \RuntimeException('Too many saved orders. Please reset some pages first.');
+        }
+
         $this->model->saveOrder($login, $categoryId, $subcategoryId, $sanitized);
     }
 
@@ -62,11 +70,18 @@ class API extends \Piwik\Plugin\API
      *
      * @param string $categoryId
      * @param string $subcategoryId
-     * @return array  Ordered list of "Module.action" strings, or empty array if no custom order.
+     * @return array  Ordered list of widget uniqueIds, or empty array if no custom order.
      */
     public function getReportOrder(string $categoryId, string $subcategoryId): array
     {
         Piwik::checkUserIsNotAnonymous();
+
+        $categoryId    = trim($categoryId);
+        $subcategoryId = trim($subcategoryId);
+
+        if (!Model::isValidCategoryId($categoryId) || !Model::isValidCategoryId($subcategoryId)) {
+            throw new \InvalidArgumentException('Invalid category or subcategory format.');
+        }
 
         $login = Piwik::getCurrentUserLogin();
         return $this->model->getOrder($login, $categoryId, $subcategoryId);
@@ -82,7 +97,14 @@ class API extends \Piwik\Plugin\API
     {
         Piwik::checkUserIsNotAnonymous();
 
+        $categoryId    = trim($categoryId);
+        $subcategoryId = trim($subcategoryId);
+
+        if (!Model::isValidCategoryId($categoryId) || !Model::isValidCategoryId($subcategoryId)) {
+            throw new \InvalidArgumentException('Invalid category or subcategory format.');
+        }
+
         $login = Piwik::getCurrentUserLogin();
-        $this->model->saveOrder($login, $categoryId, $subcategoryId, []);
+        $this->model->deleteOrder($login, $categoryId, $subcategoryId);
     }
 }
