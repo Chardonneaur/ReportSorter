@@ -2,7 +2,7 @@
 
 **Drag and drop to reorder reports on any Matomo report page. Your custom layout is saved per user.**
 
-> This plugin is a community contribution and is not officially supported by Matomo GmbH.
+> This plugin is a community contribution and is not officially supported by Matomo.
 > It is provided under the GPL v3 license without any warranty of fitness for a particular purpose.
 
 ## Description
